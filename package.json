@@ -1,0 +1,11 @@
+{
+  "name": "sussex",
+  "description": "Roland D-50 SysEx converter",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Roman Kurbatov",
+  "license": "MIT",
+  "devDependencies": {
+    "flow-bin": "^0.56.0"
+  }
+}
