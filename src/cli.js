@@ -2,7 +2,7 @@
 
 import { readBinFile } from './d50/formats'
 
-readBinFile('./1 Preset.bin')
+readBinFile('./demo/1 Preset.bin')
   .then(()=> {
     console.log('success!!')
   })

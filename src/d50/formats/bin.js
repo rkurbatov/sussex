@@ -16,5 +16,11 @@ function splitBin(data: Uint8Array): Array<Uint8Array> {
   if (String.fromCharCode(...data.subarray(0, SIGNATURE.length)) !== SIGNATURE) {
     throw new Error("Wrong BIN file format")
   }
-  return []
+  let arr = []
+  let offset = SIGNATURE.length
+  while (offset < data.length) {
+    arr.push(data.subarray(offset, offset + CHUNK_LEN))
+    offset += CHUNK_LEN
+  }
+  return arr
 }
