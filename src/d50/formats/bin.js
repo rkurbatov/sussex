@@ -1,14 +1,43 @@
 // @flow
 
+import { parsePatchCommon, parseToneCommon, parsePartial } from '../converters'
+
+import type { D50Dump, D50Patch } from '../types'
+
 const fs = require('fs')
 
-export const readBinFile = async (fileName: string): Promise<Array<Uint8Array>> =>
+export const readBinFile = async (fileName: string): Promise<D50Dump> =>
   new Promise((resolve, reject) => {
     fs.readFile(fileName, (err, binary) => {
       if (err) return reject(err)
-      resolve(splitBin(binary))
+      resolve(parseBinData(splitBin(binary)))
     })
   })
+
+const parseBinData = (data: Array<Uint8Array>): D50Dump => {
+  return {
+    patches: data.map(parseBinaryPatch)
+  }
+}
+
+const parseBinaryPatch = (data: Uint8Array): D50Patch => {
+  const binaryData = offset => data.subarray(offset, offset + 64)
+
+  const options = { }
+  return {
+    common: parsePatchCommon(binaryData(404), options),
+    upperTone: {
+      common: parseToneCommon(binaryData(276), options),
+      partial1: parsePartial(binaryData(20)),
+      partial2: parsePartial(binaryData(84)),
+    },
+    lowerTone: {
+      common: parseToneCommon(binaryData(340), options),
+      partial1: parsePartial(binaryData(148)),
+      partial2: parsePartial(binaryData(212)),
+    }
+  }
+}
 
 function splitBin(data: Uint8Array): Array<Uint8Array> {
   const CHUNK_LEN = 468

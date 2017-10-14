@@ -1,6 +1,6 @@
 // @flow
 
-import { D50Memory, addressToOffset } from '../Memory'
+import { D50Memory } from '../Memory'
 import { D50Sysex } from '../Sysex'
 import { parsePatchCommon, parseToneCommon, parsePartial } from '../converters'
 

@@ -43,7 +43,7 @@ export const parsePatchCommon = (data: Uint8Array, options: ParsePatchOptions): 
 }
 
 export const parseToneCommon = (data: Uint8Array, options: Object): D50ToneCommon => {
-  const p = (i, max) => parseNumber(data[i], max, 'patch')
+  const p = (i, max) => parseNumber(data[i], max, 'tone')
 
   const convertChar = options.rolandStrings
     ? (i: number): string => rolandToAscii[i] || ' '

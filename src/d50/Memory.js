@@ -46,7 +46,7 @@ export class D50Memory {
   }
 }
 
-export function addressToOffset(address: D50Address): number {
+function addressToOffset(address: D50Address): number {
   const offset = (address[0] * 128 * 128 + address[1] * 128 + address[2]) - 32768
   if (address.some( n => n < 0 || n > 127) || offset > MEM_LEN - 1) {
     throw new Error('Memory offset is beyond allowed range')
