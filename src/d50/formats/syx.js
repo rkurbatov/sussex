@@ -29,28 +29,20 @@ const parseSyxData = (data: Array<D50BinarySysEx>): D50Dump => {
 }
 
 const parseBinaryPatch = (data: Uint8Array): D50Patch => {
-  const upperPartial1Offset = addressToOffset([0x00, 0x00, 0x00])
-  const upperPartial2Offset = addressToOffset([0x00, 0x00, 0x40])
-  const upperToneCommonOffset = addressToOffset([0x00, 0x01, 0x00])
-  const lowerPartial1Offset = addressToOffset([0x00, 0x02, 0x00])
-  const lowerPartial2Offset = addressToOffset([0x00, 0x01, 0x40])
-  const lowerToneCommonOffset = addressToOffset([0x00, 0x02, 0x40])
-  const patchCommonOffset = addressToOffset([0x00, 0x03, 0x00])
-
   const binaryData = offset => data.subarray(offset, offset + 64)
 
   const options = { rolandStrings: true }
   return {
-    common: parsePatchCommon(binaryData(patchCommonOffset), options),
+    common: parsePatchCommon(binaryData(384), options),
     upperTone: {
-      common: parseToneCommon(binaryData(upperToneCommonOffset), options),
-      partial1: parsePartial(binaryData(upperPartial1Offset)),
-      partial2: parsePartial(binaryData(upperPartial2Offset)),
+      common: parseToneCommon(binaryData(128), options),
+      partial1: parsePartial(binaryData(0)),
+      partial2: parsePartial(binaryData(64)),
     },
     lowerTone: {
-      common: parseToneCommon(binaryData(lowerToneCommonOffset), options),
-      partial1: parsePartial(binaryData(lowerPartial1Offset)),
-      partial2: parsePartial(binaryData(lowerPartial2Offset)),
+      common: parseToneCommon(binaryData(320), options),
+      partial1: parsePartial(binaryData(192)),
+      partial2: parsePartial(binaryData(256)),
     }
   }
 }

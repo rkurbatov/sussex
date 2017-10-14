@@ -41,7 +41,6 @@ export class D50Memory {
   }
 
   getBinaryReverb(i: number): D50ReverbData {
-    console.log('reverb', i)
     const offset = REVERB_BLOCK_OFFSET + i * REVERB_DATA_LENGTH
     return this._getBlock(offset, REVERB_DATA_LENGTH)
   }
