@@ -1,10 +1,10 @@
 // @flow
 
-import type { D50SysexHeader } from './types'
+import type { D50SysexHeader, D50BinarySysEx } from './types'
 
-export class Sysex {
+export class D50Sysex {
   header: D50SysexHeader
-  data: Uint8Array
+  data: D50BinarySysEx
   invalidCheckSum: boolean
 
   constructor (binary: Uint8Array) {
@@ -15,7 +15,7 @@ export class Sysex {
 }
 
 const getSysexHeader = (sysex: Uint8Array): D50SysexHeader => {
-  if (sysex.length !== 10) {
+  if (sysex.length < 10) {
     throw new Error ('Wrong SysEx header format')
   }
   const aBuf = sysex.subarray(5, 8)
