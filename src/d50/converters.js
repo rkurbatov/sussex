@@ -37,6 +37,10 @@ export const parsePatchCommon = (data: Uint8Array, options: ParsePatchOptions): 
 
 }
 
+export const encodePatchCommon = (patchCommon: D50PatchCommon): Uint8Array => {
+
+}
+
 export const parseToneCommon = (data: Uint8Array, options: Object): D50ToneCommon => {
   const p = (i, max) => parseNumber(data[i], max, 'tone')
 
@@ -90,6 +94,10 @@ export const parseToneCommon = (data: Uint8Array, options: Object): D50ToneCommo
     partialMute: p(46, 3),
     partialBalance: p(47, 100)
   }
+}
+
+export const encodeToneCommon = (toneCommon: D50ToneCommon): Uint8Array => {
+
 }
 
 export const parsePartial = (data: Uint8Array): D50TonePartial => {
@@ -160,26 +168,40 @@ export const parsePartial = (data: Uint8Array): D50TonePartial => {
   }
 }
 
+export const encodePartial = (partial: D50TonePartial): Uint8Array => {
+
+}
+
 function parseNumber(n: number, maxValue: number, unit: string): number {
   if (n < 0 || n > maxValue) throw new Error(`Value '${n}' is out of range '${maxValue}' in ${unit}`)
   return n
 }
 
+const rolandToAscii = [
+  ' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
+  'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
+  'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
+  'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e',
+  'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+  'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
+  'v', 'w', 'x', 'y', 'z', '1', '2', '3',
+  '4', '5', '6', '7', '8', '9', '0', '-',
+]
 export function parseString(data: Uint8Array, rolandString?: boolean): string {
-  const rolandToAscii = [
-    ' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
-    'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
-    'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
-    'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e',
-    'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-    'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
-    'v', 'w', 'x', 'y', 'z', '1', '2', '3',
-    '4', '5', '6', '7', '8', '9', '0', '-',
-  ]
-
   const convertChar = rolandString
     ? (i: number): string => rolandToAscii[i] || ' '
     : (i: number) => String.fromCharCode(i)
 
   return Array.from(data).map(convertChar).join('')
+}
+
+export function encodeString(s: string, rolandString?: boolean): Array<number> {
+  const convertChar = rolandString
+    ? c => {
+      const code = rolandToAscii.indexOf(c)
+      return code === -1 ? 0 : code
+    }
+    : c => c.charCodeAt()
+
+  return Array.from(s).map(convertChar)
 }

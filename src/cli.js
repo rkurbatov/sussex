@@ -1,9 +1,10 @@
 // @flow
 
-import { readBinFile } from './d50/formats'
+import { readSyxFile, writeBinFile } from './d50/formats'
 
-readBinFile('./demo/1 Preset.bin')
+readSyxFile('./demo/PND50-00.syx')
   .then((parsed)=> {
     console.log('success!!')
-    console.log(JSON.stringify(parsed.patches[0].name, null, 2))
+    console.log(parsed.patches.length)
+    return writeBinFile('./demo/PND50-00.bin', parsed)
   })

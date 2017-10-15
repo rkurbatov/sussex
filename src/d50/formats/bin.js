@@ -1,30 +1,70 @@
 // @flow
 
-import { readFile } from 'fs'
-import { parsePatchCommon, parseToneCommon, parsePartial, parseString } from '../converters'
+import { readFile, writeFile } from 'fs'
+import {
+  parsePatchCommon,
+  parseToneCommon,
+  parsePartial,
+  parseString,
+  encodePatchCommon,
+  encodeToneCommon,
+  encodePartial,
+  encodeString
+} from '../converters'
 
 import type { D50Dump, D50Patch } from '../types'
+type BinaryPatch = Uint8Array
+
+const SIGNATURE = "KoaBankFile00003PG-D50"
+const BINARY_PATCH_LEN = 18 + 2 + 64 * 7  // patchName + 0x0000 + 7*64 bytes of patch data:
+                                          // upperPartial1, upperPartial2, lowerPartial1, lowerPartial2
+                                          // upperCommon1, upperCommon2, patchCommon
+const BINARY_DUMP_LEN = SIGNATURE.length + 64 * BINARY_PATCH_LEN
 
 export const readBinFile = async (fileName: string): Promise<D50Dump> =>
   new Promise((resolve, reject) => {
     readFile(fileName, (err, binary) => {
       if (err) return reject(err)
-      resolve(parseBinData(splitBin(binary)))
+      resolve(parseBinDump(splitBin(binary)))
     })
   })
 
-const parseBinData = (data: Array<Uint8Array>): D50Dump => {
+export const writeBinFile = async (fileName: string, dump: D50Dump) => {
+  new Promise((resolve, reject) => {
+    const binDump = exportBinDump(dump)
+    writeFile(fileName, new Buffer(binDump), (err) => {
+      if (err) return reject(err)
+      resolve(true)
+    })
+  })
+}
+
+const parseBinDump = (binDump: Array<BinaryPatch>): D50Dump => {
   return {
-    patches: data.map(parseBinaryPatch)
+    patches: binDump.map(parseBinaryPatch)
   }
 }
 
-const parseBinaryPatch = (data: Uint8Array): D50Patch => {
-  const binaryData = offset => data.subarray(offset, offset + 64)
+const exportBinDump = (dump: D50Dump): Uint8Array => {
+  const binaryDump = new Uint8Array(BINARY_DUMP_LEN)
+
+  const binSignature = encodeString(SIGNATURE)
+  binaryDump.set(binSignature, 0)
+
+  const binPatches = dump.patches.map(encodeBinaryPatch)
+  binPatches.forEach((binaryPatch: BinaryPatch, i) => {
+    binaryDump.set(binaryPatch, SIGNATURE.length + i * BINARY_PATCH_LEN)
+  })
+
+  return binaryDump
+}
+
+const parseBinaryPatch = (binaryPatch: BinaryPatch): D50Patch => {
+  const binaryData = offset => binaryPatch.subarray(offset, offset + 64)
 
   const options = { }
   return {
-    name: parseString(data.subarray(0, 18)),
+    name: parseString(binaryPatch.subarray(0, 18)),
     common: parsePatchCommon(binaryData(404), options),
     upperTone: {
       common: parseToneCommon(binaryData(276), options),
@@ -39,17 +79,21 @@ const parseBinaryPatch = (data: Uint8Array): D50Patch => {
   }
 }
 
+const encodeBinaryPatch = (patch: D50Patch): BinaryPatch => {
+  const binaryPatch = new Uint8Array(BINARY_PATCH_LEN)
+
+  return binaryPatch
+}
+
 function splitBin(data: Uint8Array): Array<Uint8Array> {
-  const CHUNK_LEN = 468
-  const SIGNATURE = "KoaBankFile00003PG-D50"
   if (String.fromCharCode(...data.subarray(0, SIGNATURE.length)) !== SIGNATURE) {
     throw new Error("Wrong BIN file format")
   }
   let arr = []
   let offset = SIGNATURE.length
   while (offset < data.length) {
-    arr.push(data.subarray(offset, offset + CHUNK_LEN))
-    offset += CHUNK_LEN
+    arr.push(data.subarray(offset, offset + BINARY_PATCH_LEN))
+    offset += BINARY_PATCH_LEN
   }
   return arr
 }
