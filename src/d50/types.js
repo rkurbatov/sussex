@@ -19,6 +19,7 @@ export type D50Dump = {
 }
 
 export type D50Patch = {
+  name?: string,
   common: D50PatchCommon,
   upperTone: D50PatchTone,
   lowerTone: D50PatchTone,

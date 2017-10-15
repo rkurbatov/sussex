@@ -1,7 +1,7 @@
 // @flow
 
 import { readFile } from 'fs'
-import { parsePatchCommon, parseToneCommon, parsePartial } from '../converters'
+import { parsePatchCommon, parseToneCommon, parsePartial, parseString } from '../converters'
 
 import type { D50Dump, D50Patch } from '../types'
 
@@ -24,6 +24,7 @@ const parseBinaryPatch = (data: Uint8Array): D50Patch => {
 
   const options = { }
   return {
+    name: parseString(data.subarray(0, 18)),
     common: parsePatchCommon(binaryData(404), options),
     upperTone: {
       common: parseToneCommon(binaryData(276), options),

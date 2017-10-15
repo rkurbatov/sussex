@@ -5,17 +5,12 @@ import type { D50PatchCommon, D50ToneCommon, D50TonePartial } from './types'
 type ParsePatchOptions = {
   rolandStrings?: boolean
 }
+
 export const parsePatchCommon = (data: Uint8Array, options: ParsePatchOptions): D50PatchCommon => {
   const p = (i, max) => parseNumber(data[i], max, 'patch')
 
-  const convertChar = options.rolandStrings
-    ? (i: number): string => rolandToAscii[i] || ' '
-    : (i: number) => String.fromCharCode(i)
-
-  const name = Array.from(data.subarray(0, 18)).map(convertChar).join('')
-
   return {
-    name,
+    name: parseString(data.subarray(0, 18), options.rolandStrings),
     keyMode: p(18, 8),
     splitPoint: p(19, 60),
     portamentoMode: p(20, 2),
@@ -45,14 +40,8 @@ export const parsePatchCommon = (data: Uint8Array, options: ParsePatchOptions): 
 export const parseToneCommon = (data: Uint8Array, options: Object): D50ToneCommon => {
   const p = (i, max) => parseNumber(data[i], max, 'tone')
 
-  const convertChar = options.rolandStrings
-    ? (i: number): string => rolandToAscii[i] || ' '
-    : (i: number) => String.fromCharCode(i)
-
-  const name = Array.from(data.subarray(0, 10)).map(convertChar).join('')
-
   return {
-    name,
+    name: parseString(data.subarray(0,10), options.rolandStrings),
     structure: p(10, 6),
     pEnv: {
       velocityRange: p(11, 2),
@@ -176,13 +165,21 @@ function parseNumber(n: number, maxValue: number, unit: string): number {
   return n
 }
 
-const rolandToAscii = [
-  ' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
-  'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
-  'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
-  'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e',
-  'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-  'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
-  'v', 'w', 'x', 'y', 'z', '1', '2', '3',
-  '4', '5', '6', '7', '8', '9', '0', '-',
-]
+export function parseString(data: Uint8Array, rolandString?: boolean): string {
+  const rolandToAscii = [
+    ' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
+    'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
+    'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
+    'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e',
+    'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+    'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
+    'v', 'w', 'x', 'y', 'z', '1', '2', '3',
+    '4', '5', '6', '7', '8', '9', '0', '-',
+  ]
+
+  const convertChar = rolandString
+    ? (i: number): string => rolandToAscii[i] || ' '
+    : (i: number) => String.fromCharCode(i)
+
+  return Array.from(data).map(convertChar).join('')
+}
