@@ -1,4 +1,4 @@
 // @flow
 
 export { readSyxFile } from './syx'
-export { readBinFile } from './bin'
+export { readBinFile, writeBinFile } from './bin'
