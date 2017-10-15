@@ -9,6 +9,9 @@ export default {
     file: 'build/sussex.js',
     format: 'cjs'
   },
+  external: [
+    'fs',
+  ],
   plugins: [
     flow(),
     resolve(),

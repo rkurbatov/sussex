@@ -1,14 +1,13 @@
 // @flow
 
+import { readFile } from 'fs'
 import { parsePatchCommon, parseToneCommon, parsePartial } from '../converters'
 
 import type { D50Dump, D50Patch } from '../types'
 
-const fs = require('fs')
-
 export const readBinFile = async (fileName: string): Promise<D50Dump> =>
   new Promise((resolve, reject) => {
-    fs.readFile(fileName, (err, binary) => {
+    readFile(fileName, (err, binary) => {
       if (err) return reject(err)
       resolve(parseBinData(splitBin(binary)))
     })

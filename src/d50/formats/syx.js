@@ -1,5 +1,6 @@
 // @flow
 
+import { readFile } from 'fs'
 import { D50Memory } from '../Memory'
 import { D50Sysex } from '../Sysex'
 import { parsePatchCommon, parseToneCommon, parsePartial } from '../converters'
@@ -8,7 +9,7 @@ import type { D50Dump, D50BinarySysEx, D50Patch } from '../types'
 
 export const readSyxFile = async (fileName: string): Promise<D50Dump> =>
   new Promise((resolve, reject) => {
-    require('fs').readFile(fileName, (err, binary) => {
+    readFile(fileName, (err, binary) => {
       if (err) return reject(err)
       resolve(parseSyxData(splitSysEx(binary)))
     })
