@@ -32,7 +32,7 @@ export const readBinFile = async (fileName: string): Promise<D50Dump> =>
 export const writeBinFile = async (fileName: string, dump: D50Dump) => {
   new Promise((resolve, reject) => {
     const binDump = exportBinDump(dump)
-    writeFile(fileName, new Buffer(binDump), (err) => {
+    writeFile(fileName, Buffer.fromy(binDump), (err) => {
       if (err) return reject(err)
       resolve(true)
     })
@@ -60,7 +60,7 @@ const exportBinDump = (dump: D50Dump): Uint8Array => {
 }
 
 const parseBinaryPatch = (binaryPatch: BinaryPatch): D50Patch => {
-  const binaryData = i => binaryPatch.subarray(20 + i*64, 20 + (i+1)*64)
+  const binaryData = i => binaryPatch.subarray(20 + i * 64, 20 + (i+1) * 64)
 
   const options = { }
   return {
@@ -83,6 +83,24 @@ const encodeBinaryPatch = (patch: D50Patch): BinaryPatch => {
   const binaryPatch = new Uint8Array(BINARY_PATCH_LEN)
   const binaryName = encodeString(patch.name || patch.common.name, 18)
   binaryPatch.set(binaryName, 0)
+
+  const offset = i => 20 + i*64
+  const binaryCommon = encodePatchCommon(patch.common)
+  binaryPatch.set(binaryCommon, offset(6))
+
+  const binaryUpperToneCommon = encodeToneCommon(patch.upperTone.common)
+  binaryPatch.set(binaryUpperToneCommon, offset(4))
+  const binaryUpperPartial1 = encodePartial(patch.upperTone.partial1)
+  binaryPatch.set(binaryUpperPartial1, offset(0))
+  const binaryUpperPartial2 = encodePartial(patch.upperTone.partial2)
+  binaryPatch.set(binaryUpperPartial2, offset(1))
+
+  const binaryLowerToneCommon = encodeToneCommon(patch.lowerTone.common)
+  binaryPatch.set(binaryLowerToneCommon, offset(5))
+  const binaryLowerPartial1 = encodePartial(patch.lowerTone.partial1)
+  binaryPatch.set(binaryLowerPartial1, offset(2))
+  const binaryLowerPartial2 = encodePartial(patch.lowerTone.partial2)
+  binaryPatch.set(binaryLowerPartial2, offset(3))
 
   return binaryPatch
 }

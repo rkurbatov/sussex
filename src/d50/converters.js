@@ -37,8 +37,32 @@ export const parsePatchCommon = (data: Uint8Array, options: ParsePatchOptions): 
 
 }
 
-export const encodePatchCommon = (patchCommon: D50PatchCommon): Uint8Array => {
-
+export const encodePatchCommon = (pc: D50PatchCommon): Array<number> => {
+  return [
+    ...encodeString(pc.name, 18),
+    pc.keyMode,
+    pc.splitPoint,
+    pc.portamentoMode,
+    pc.holdMode,
+    pc.upperToneKeyShift,
+    pc.lowerToneKeyShift,
+    pc.upperToneFineTune,
+    pc.lowerToneFineTune,
+    pc.benderRange,
+    pc.afterTouchBendRange,
+    pc.portamentoTime,
+    pc.outputMode,
+    pc.reverbType,
+    pc.reverbBalance,
+    pc.totalVolume,
+    pc.toneBalance,
+    pc.chaseMode,
+    pc.chaseLevel,
+    pc.chaseTime,
+    pc.midiTransmitChannel,
+    pc.midiSeparateRcvChannel,
+    pc.midiProgChange,
+  ]
 }
 
 export const parseToneCommon = (data: Uint8Array, options: Object): D50ToneCommon => {
@@ -96,8 +120,43 @@ export const parseToneCommon = (data: Uint8Array, options: Object): D50ToneCommo
   }
 }
 
-export const encodeToneCommon = (toneCommon: D50ToneCommon): Uint8Array => {
-
+export const encodeToneCommon = (tc: D50ToneCommon): Array<number> => {
+  return [
+    ...encodeString(tc.name, 10),
+    tc.structure,
+    tc.pEnv.velocityRange,
+    tc.pEnv.timeKeyFollow,
+    ...tc.pEnv.time,
+    ...tc.pEnv.level,
+    tc.pEnv.sustainLevel,
+    tc.pEnv.endLevel,
+    tc.modulation.lfoDepth,
+    tc.modulation.pitchLever,
+    tc.modulation.pitchAfterTouch,
+    tc.lfo1.waveform,
+    tc.lfo1.rate,
+    tc.lfo1.delayTime,
+    tc.lfo1.sync,
+    tc.lfo2.waveform,
+    tc.lfo2.rate,
+    tc.lfo2.delayTime,
+    tc.lfo2.sync,
+    tc.lfo3.waveform,
+    tc.lfo3.rate,
+    tc.lfo3.delayTime,
+    tc.lfo3.sync,
+    tc.eq.lowFrequency,
+    tc.eq.lowGain,
+    tc.eq.highFrequency,
+    tc.eq.highQ,
+    tc.eq.highGain,
+    tc.chorus.type,
+    tc.chorus.rate,
+    tc.chorus.depth,
+    tc.chorus.balance,
+    tc.partialMute,
+    tc.partialBalance,
+  ]
 }
 
 export const parsePartial = (data: Uint8Array): D50TonePartial => {
@@ -168,8 +227,51 @@ export const parsePartial = (data: Uint8Array): D50TonePartial => {
   }
 }
 
-export const encodePartial = (partial: D50TonePartial): Uint8Array => {
-
+export const encodePartial = (pt: D50TonePartial): Array<number> => {
+  return [
+    pt.wg.pitch.coarse,
+    pt.wg.pitch.fine,
+    pt.wg.pitch.keyFollow,
+    pt.wg.modulation.lfoMode,
+    pt.wg.modulation.pEnvMode,
+    pt.wg.modulation.bendMode,
+    pt.wg.waveform,
+    pt.wg.pcmWave,
+    pt.wg.pulseWidth.amount,
+    pt.wg.pulseWidth.velocityRange,
+    pt.wg.pulseWidth.lfoSelect,
+    pt.wg.pulseWidth.lfoDepth,
+    pt.wg.pulseWidth.afterTouchRange,
+    pt.tvf.cutoffFrequency,
+    pt.tvf.resonance,
+    pt.tvf.keyFollow,
+    pt.tvf.biasPoint,
+    pt.tvf.biasLevel,
+    pt.tvf.env.depth,
+    pt.tvf.env.velocityRange,
+    pt.tvf.env.depthKeyFollow,
+    pt.tvf.env.timeKeyFollow,
+    ...pt.tvf.env.time,
+    ...pt.tvf.env.level,
+    pt.tvf.env.sustainLevel,
+    pt.tvf.env.endLevel,
+    pt.tvf.modulation.lfoSelect,
+    pt.tvf.modulation.lfoDepth,
+    pt.tvf.modulation.afterTouchRange,
+    pt.tva.level,
+    pt.tva.velocityRange,
+    pt.tva.biasPoint,
+    pt.tva.biasLevel,
+    ...pt.tva.env.time,
+    ...pt.tva.env.level,
+    pt.tva.env.sustainLevel,
+    pt.tva.env.endLevel,
+    pt.tva.env.velocityFollow,
+    pt.tva.env.timeKeyFollow,
+    pt.tva.modulation.lfoSelect,
+    pt.tva.modulation.lfoDepth,
+    pt.tva.modulation.afterTouchRange,
+  ]
 }
 
 function parseNumber(n: number, maxValue: number, unit: string): number {
@@ -206,7 +308,7 @@ export function encodeString(s: string, length: number = s.length, rolandString?
       const code = rolandToAscii.indexOf(c)
       return code === -1 ? 0 : code
     }
-    : c => c.charCodeAt()
+    : c => c.charCodeAt(0)
 
   return Array.from(str).map(convertChar)
 }
