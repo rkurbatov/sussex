@@ -32,7 +32,7 @@ export const readBinFile = async (fileName: string): Promise<D50Dump> =>
 export const writeBinFile = async (fileName: string, dump: D50Dump) => {
   new Promise((resolve, reject) => {
     const binDump = exportBinDump(dump)
-    writeFile(fileName, Buffer.fromy(binDump), (err) => {
+    writeFile(fileName, Buffer.from(binDump), (err) => {
       if (err) return reject(err)
       resolve(true)
     })
